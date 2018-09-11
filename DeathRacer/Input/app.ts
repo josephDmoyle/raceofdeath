@@ -54,7 +54,7 @@ class SimpleGame {
         }
 
         //Load in the image of the racer to get the proper dimensions
-        var carImage = <Phaser.Image>this.game.cache.getImage("racer");
+        var carImage = this.game.cache.getImage("racer");
 
         //Create the car as a sprite with the loaded content
         this.car = this.game.add.sprite(this.game.width / 2 - carImage.width / 2, this.game.height / 2 - carImage.height / 2, "racer");
@@ -87,7 +87,7 @@ class SimpleGame {
     update() {
         // Update input state
         this.game.input.update();
-        this.game.physics.arcade.collide(this.car, this.guys.children, this.collisionHandler, null, this);
+        this.game.physics.arcade.collide(this.car, this.guys, this.collisionHandler, null, this);
 
         //Set velocities to zero so we can directly manipulate them each frame
         this.car.body.velocity.x = 0;

@@ -55,7 +55,7 @@ var SimpleGame = /** @class */ (function () {
     SimpleGame.prototype.update = function () {
         // Update input state
         this.game.input.update();
-        this.game.physics.arcade.collide(this.car, this.guys.children, this.collisionHandler, null, this);
+        this.game.physics.arcade.collide(this.car, this.guys, this.collisionHandler, null, this);
         //Set velocities to zero so we can directly manipulate them each frame
         this.car.body.velocity.x = 0;
         this.car.body.velocity.y = 0;

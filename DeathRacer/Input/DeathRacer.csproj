@@ -31,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="box2d.d.ts" />
     <TypeScriptCompile Include="phaser.d.ts" />
   </ItemGroup>
   <ItemGroup>
