@@ -7,6 +7,8 @@ class SimpleGame {
     game: Phaser.Game;
     //Car sprite
     car: Phaser.Sprite;
+    //The guys to hit
+    guys: Phaser.Group;
     //The four arrows
     cursors: Phaser.CursorKeys;
     //W key
@@ -29,6 +31,8 @@ class SimpleGame {
     //Load in all the graphical content
     preload() {
         this.game.load.image("racer", "racer.png");
+        this.game.load.image("guy0", "guy0.png");
+        this.game.load.image("guy1", "guy1.png");
     }
 
     //Initialize all the objects within the game
@@ -36,11 +40,22 @@ class SimpleGame {
         //Initiate the physics engine
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
+
+        this.guys = this.game.add.group();
+        this.guys.enableBody = true;
+
+        for (var i = 0; i < 2; i++) {
+            var s = this.guys.create(this.game.world.randomX, this.game.world.randomY, 'guy0');
+            s.name = 'guy' + s;
+            s.body.collideWorldBounds = true;
+            s.body.bounce.setTo(0.8, 0.8);
+        }
+
         //Load in the image of the racer to get the proper dimensions
-        var image0 = <Phaser.Image>this.game.cache.getImage("racer");
+        var carImage = <Phaser.Image>this.game.cache.getImage("racer");
 
         //Create the car as a sprite with the loaded content
-        this.car = this.game.add.sprite(this.game.width / 2 - image0.width / 2, this.game.height / 2 - image0.height / 2, "racer");
+        this.car = this.game.add.sprite(this.game.width / 2 - carImage.width / 2, this.game.height / 2 - carImage.height / 2, "racer");
 
         //Se the pivot point to the center of the car
         this.car.anchor.set(0.5);
@@ -70,6 +85,7 @@ class SimpleGame {
     update() {
         // Update input state
         this.game.input.update();
+        this.game.physics.arcade.collide(this.car, this.guys);
 
         //Set velocities to zero so we can directly manipulate them each frame
         this.car.body.velocity.x = 0;

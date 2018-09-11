@@ -20,8 +20,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="guy0.png" />
+    <Content Include="guy1.png" />
     <Content Include="index.html" />
-    <Content Include="jet.png" />
     <Content Include="phaser.js" />
     <Content Include="phaser.min.js" />
     <Content Include="racer.png" />
