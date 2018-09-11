@@ -14,6 +14,7 @@ var SimpleGame = /** @class */ (function () {
         this.game.load.image("racer", "racer.png");
         this.game.load.image("guy0", "guy0.png");
         this.game.load.image("guy1", "guy1.png");
+        this.game.load.image("dead", "dead.png");
     };
     //Initialize all the objects within the game
     SimpleGame.prototype.create = function () {
@@ -34,7 +35,7 @@ var SimpleGame = /** @class */ (function () {
         //Se the pivot point to the center of the car
         this.car.anchor.set(0.5);
         //Enable the arcade physics interactions
-        this.game.physics.enable(this.car, Phaser.Physics.ARCADE);
+        this.game.physics.arcade.enable(this.car);
         //Set car to stay on screen
         this.car.body.collideWorldBounds = true;
         //Set the bounciness of the car
@@ -54,7 +55,7 @@ var SimpleGame = /** @class */ (function () {
     SimpleGame.prototype.update = function () {
         // Update input state
         this.game.input.update();
-        this.game.physics.arcade.collide(this.car, this.guys);
+        this.game.physics.arcade.collide(this.car, this.guys.children, this.collisionHandler, null, this);
         //Set velocities to zero so we can directly manipulate them each frame
         this.car.body.velocity.x = 0;
         this.car.body.velocity.y = 0;
@@ -69,6 +70,9 @@ var SimpleGame = /** @class */ (function () {
             this.car.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car.angle, 300));
         else if (this.cursors.down.isDown || this.S.isDown)
             this.car.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car.angle, -100));
+    };
+    SimpleGame.prototype.collisionHandler = function (player, guy) {
+        guy.kill();
     };
     return SimpleGame;
 }());

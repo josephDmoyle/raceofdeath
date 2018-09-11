@@ -20,6 +20,7 @@ class SimpleGame {
     //D key
     D: Phaser.Key;
 
+
     //Creates the game graphically
     constructor() {
         this.game = new Phaser.Game(640, 480, Phaser.AUTO, 'content', {
@@ -33,6 +34,7 @@ class SimpleGame {
         this.game.load.image("racer", "racer.png");
         this.game.load.image("guy0", "guy0.png");
         this.game.load.image("guy1", "guy1.png");
+        this.game.load.image("dead", "dead.png");
     }
 
     //Initialize all the objects within the game
@@ -61,7 +63,7 @@ class SimpleGame {
         this.car.anchor.set(0.5);
 
         //Enable the arcade physics interactions
-        this.game.physics.enable(this.car, Phaser.Physics.ARCADE);
+        this.game.physics.arcade.enable(this.car);
 
         //Set car to stay on screen
         this.car.body.collideWorldBounds = true;
@@ -85,7 +87,7 @@ class SimpleGame {
     update() {
         // Update input state
         this.game.input.update();
-        this.game.physics.arcade.collide(this.car, this.guys);
+        this.game.physics.arcade.collide(this.car, this.guys.children, this.collisionHandler, null, this);
 
         //Set velocities to zero so we can directly manipulate them each frame
         this.car.body.velocity.x = 0;
@@ -104,6 +106,11 @@ class SimpleGame {
         else if (this.cursors.down.isDown || this.S.isDown)
             this.car.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car.angle, -100));
     }
+
+    collisionHandler( player, guy) {
+        guy.kill();
+    }
+
 }
 
 window.onload = () => {
