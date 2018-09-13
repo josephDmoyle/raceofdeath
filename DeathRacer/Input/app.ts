@@ -58,6 +58,7 @@ class SimpleGame {
             s.body.collideWorldBounds = true;
             s.body.bounce.setTo(0.8, 0.8);
             s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+            s.anchor.set(0.5);
             var anim = s.animations.add("guy");
             anim.play(10, true);
         }
@@ -100,12 +101,20 @@ class SimpleGame {
         //Process collisions with car to guys
         this.guys.forEachAlive(function (guy) {
             if (this.game.physics.arcade.collide(this.car, guy)) {
-                this.game.add.sprite(guy.x, guy.y, "dead");
+                var grave = this.game.add.sprite(guy.x, guy.y, "dead");
+                grave.scale.set(guy.scale.x, 1);
                 guy.x = this.game.world.randomX;
                 guy.y = this.game.world.randomY;
                 guy.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
                 this.s1.play();
             }
+            if (guy.body.velocity.x < 0) {
+                guy.scale.set(-1, 1);
+            }
+            else {
+                guy.scale.set(1, 1);
+            }
+
         }, this);
 
         //Set velocities to zero so we can directly manipulate them each frame
