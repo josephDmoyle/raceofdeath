@@ -22,11 +22,12 @@ var SimpleGame = /** @class */ (function () {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.guys = this.game.add.group();
         this.guys.enableBody = true;
-        for (var i = 0; i < 2; i++) {
+        for (var i = 0; i < 5; i++) {
             var s = this.guys.create(this.game.world.randomX, this.game.world.randomY, 'guy0');
             s.name = 'guy' + s;
             s.body.collideWorldBounds = true;
             s.body.bounce.setTo(0.8, 0.8);
+            s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
         }
         //Load in the image of the racer to get the proper dimensions
         var carImage = this.game.cache.getImage("racer");
@@ -55,7 +56,15 @@ var SimpleGame = /** @class */ (function () {
     SimpleGame.prototype.update = function () {
         // Update input state
         this.game.input.update();
-        this.game.physics.arcade.collide(this.car, this.guys, this.collisionHandler, null, this);
+        //Process collisions with car to guys
+        this.guys.forEachAlive(function (guy) {
+            if (this.game.physics.arcade.collide(this.car, guy)) {
+                this.game.add.sprite(guy.x, guy.y, "dead");
+                guy.x = this.game.world.randomX;
+                guy.y = this.game.world.randomY;
+                guy.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+            }
+        }, this);
         //Set velocities to zero so we can directly manipulate them each frame
         this.car.body.velocity.x = 0;
         this.car.body.velocity.y = 0;
@@ -70,9 +79,6 @@ var SimpleGame = /** @class */ (function () {
             this.car.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car.angle, 300));
         else if (this.cursors.down.isDown || this.S.isDown)
             this.car.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car.angle, -100));
-    };
-    SimpleGame.prototype.collisionHandler = function (player, guy) {
-        guy.kill();
     };
     return SimpleGame;
 }());
