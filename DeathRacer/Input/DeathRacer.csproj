@@ -27,6 +27,7 @@
     <Content Include="phaser.js" />
     <Content Include="phaser.min.js" />
     <Content Include="racer.png" />
+    <Content Include="s1.mp3" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

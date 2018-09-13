@@ -15,6 +15,8 @@ var SimpleGame = /** @class */ (function () {
         this.game.load.image("guy0", "guy0.png");
         this.game.load.image("guy1", "guy1.png");
         this.game.load.image("dead", "dead.png");
+        this.game.load.spritesheet("guy", "guy.png", 32, 32, 2);
+        this.game.load.audio("s1", "s1.mp3");
     };
     //Initialize all the objects within the game
     SimpleGame.prototype.create = function () {
@@ -22,12 +24,16 @@ var SimpleGame = /** @class */ (function () {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.guys = this.game.add.group();
         this.guys.enableBody = true;
+        this.s1 = this.game.add.audio("s1");
+        this.s1.allowMultiple = true;
         for (var i = 0; i < 5; i++) {
-            var s = this.guys.create(this.game.world.randomX, this.game.world.randomY, 'guy0');
+            var s = this.guys.create(this.game.world.randomX, this.game.world.randomY, 'guy', 5);
             s.name = 'guy' + s;
             s.body.collideWorldBounds = true;
             s.body.bounce.setTo(0.8, 0.8);
             s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+            var anim = s.animations.add("guy");
+            anim.play(10, true);
         }
         //Load in the image of the racer to get the proper dimensions
         var carImage = this.game.cache.getImage("racer");
@@ -63,6 +69,7 @@ var SimpleGame = /** @class */ (function () {
                 guy.x = this.game.world.randomX;
                 guy.y = this.game.world.randomY;
                 guy.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+                this.s1.play();
             }
         }, this);
         //Set velocities to zero so we can directly manipulate them each frame
