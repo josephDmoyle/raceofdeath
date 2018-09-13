@@ -7,6 +7,8 @@ class SimpleGame {
     game: Phaser.Game;
     //Car sprite
     car: Phaser.Sprite;
+    //Secret Second Player
+    car2: Phaser.Sprite;
     //The guys to hit
     guys: Phaser.Group;
     //The four arrows
@@ -19,9 +21,12 @@ class SimpleGame {
     S: Phaser.Key;
     //D key
     D: Phaser.Key;
-
+    //Space key
+    Space: Phaser.Key;
+    //Scream sound
     s1: Phaser.Sound;
-
+    scoreText: Phaser.Text;
+    score;
 
     //Creates the game graphically
     constructor() {
@@ -46,6 +51,10 @@ class SimpleGame {
         //Initiate the physics engine
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
+        this.scoreText = this.game.add.text(32, 32, "KILLS: ");
+        this.scoreText.fill = "white";
+        this.score = 0;
+
         this.guys = this.game.add.group();
         this.guys.enableBody = true;
 
@@ -67,13 +76,24 @@ class SimpleGame {
         var carImage = this.game.cache.getImage("racer");
 
         //Create the car as a sprite with the loaded content
-        this.car = this.game.add.sprite(this.game.width / 2 - carImage.width / 2, this.game.height / 2 - carImage.height / 2, "racer");
+        this.car = this.game.add.sprite(this.game.world.randomX, this.game.world.randomY, "racer");
 
-        //Se the pivot point to the center of the car
+        //Create the car as a sprite with the loaded content
+        this.car2 = this.game.add.sprite(this.game.world.randomX, this.game.world.randomY, "racer");
+
+
+
+        //Set the pivot point to the center of the car
         this.car.anchor.set(0.5);
+
+        //Set the pivot point to the center of the car
+        this.car2.anchor.set(0.5);
 
         //Enable the arcade physics interactions
         this.game.physics.arcade.enable(this.car);
+
+        //Enable the arcade physics interactions
+        this.game.physics.arcade.enable(this.car2);
 
         //Set car to stay on screen
         this.car.body.collideWorldBounds = true;
@@ -84,6 +104,15 @@ class SimpleGame {
         //Set the car to be infinite weight
         this.car.body.immovable = true;
 
+        //Set car to stay on screen
+        this.car2.body.collideWorldBounds = true;
+        //Set the bounciness of the car
+        this.car2.body.bounce.set(0.8);
+        //Allow the car body to be rotated by us
+        this.car2.body.allowRotation = true;
+        //Set the car to be infinite weight
+        this.car2.body.immovable = true;
+
         // create the cursor key object
         this.cursors = this.game.input.keyboard.createCursorKeys();
 
@@ -92,15 +121,21 @@ class SimpleGame {
         this.A = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
         this.S = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
         this.D = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
+        this.Space = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     }
 
     update() {
         // Update input state
         this.game.input.update();
 
+        this.scoreText.text = "KILLS: " + this.score;
+
+        this.game.physics.arcade.collide(this.car, this.car2);
+
         //Process collisions with car to guys
         this.guys.forEachAlive(function (guy) {
-            if (this.game.physics.arcade.collide(this.car, guy)) {
+            if (this.game.physics.arcade.collide(this.car, guy) || this.game.physics.arcade.collide(this.car2, guy)) {
+                this.score++;
                 var grave = this.game.add.sprite(guy.x, guy.y, "dead");
                 grave.scale.set(guy.scale.x, 1);
                 guy.x = this.game.world.randomX;
@@ -122,17 +157,32 @@ class SimpleGame {
         this.car.body.velocity.y = 0;
         this.car.body.angularVelocity = 0;
 
-        //Angular rotations given by A/l and D/r
-        if (this.cursors.left.isDown || this.A.isDown)
-            this.car.body.angularVelocity = -200;
-        else if (this.cursors.right.isDown || this.D.isDown)
-            this.car.body.angularVelocity = 200;
+        //Set velocities to zero so we can directly manipulate them each frame
+        this.car2.body.velocity.x = 0;
+        this.car2.body.velocity.y = 0;
+        this.car2.body.angularVelocity = 0;
 
+        //Angular rotations given by A/l and D/r
+        if (this.A.isDown)
+            this.car.body.angularVelocity = -200;
+        else if (this.D.isDown)
+            this.car.body.angularVelocity = 200;
         //Driving pedals given by W/u and S/d
-        if (this.cursors.up.isDown || this.W.isDown)
+        if (this.W.isDown)
             this.car.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car.angle, 300));
-        else if (this.cursors.down.isDown || this.S.isDown)
+        else if (this.S.isDown)
             this.car.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car.angle, -100));
+
+        //Angular rotations given by A/l and D/r
+        if (this.cursors.left.isDown)
+            this.car2.body.angularVelocity = -200;
+        else if (this.cursors.right.isDown)
+            this.car2.body.angularVelocity = 200;
+        //Driving pedals given by W/u and S/d
+        if (this.cursors.up.isDown)
+            this.car2.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car2.angle, 300));
+        else if (this.cursors.down.isDown)
+            this.car2.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.car2.angle, -100));
     }
 }
 
