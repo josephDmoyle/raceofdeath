@@ -61,7 +61,7 @@ function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     scoreText = game.add.text(32, 32, "KILLS: ");
-    scoreText.fill = "white";
+    scoreText.fill = "red";
 
     score = 0;
     prevScore = score;
@@ -70,7 +70,7 @@ function create() {
     state = 0;
 
     timeText = game.add.text(32, 64, "TIME: ");
-    timeText.fill = "white";
+    timeText.fill = "red";
 
     timer = game.time.create(false);
 
@@ -153,10 +153,12 @@ function update() {
 
     game.physics.arcade.collide(guys, graves);
 
-    //Set cart velocities to zero so we can directly manipulate them each frame
-    car1.body.velocity.x = 0;
-    car1.body.velocity.y = 0;
-    car1.body.angularVelocity = 0;
+    if (state < 2) {
+        //Set cart velocity to zero so we can directly manipulate each frame
+        car1.body.velocity.x = 0;
+        car1.body.velocity.y = 0;
+        car1.body.angularVelocity = 0;
+    }
 
     car2.body.velocity.x = 0;
     car2.body.velocity.y = 0;
@@ -183,7 +185,7 @@ function update() {
             else if (S.isDown)
                 car1.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(car1.angle, -100));
             break;
-        default:
+        case 1:
             //Process collisions with car to guys
             game.physics.arcade.collide(car2, graves, graveRobber, null);
 
@@ -198,12 +200,26 @@ function update() {
             else if (S.isDown)
                 car2.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(car2.angle, -100));
             break;
+        default:
+            break;
     }
 }
 
 function render() {
-    scoreText.text = "KILLS: " + score;
-    timeText.text = "TIME: " + time;
+    switch (state) {
+        case 0:
+        case 1:
+            scoreText.text = "KILLS: " + score;
+            timeText.text = "TIME: " + time;
+            break;
+        default:
+            var loseText = game.add.text(320, 240, "YOU LOSE");
+            loseText.fill = "red";
+            break;
+    }
+
+    
+
 
     guys.forEachAlive(function (guy) {
         if (guy.body.velocity.x < 0) {
@@ -236,24 +252,33 @@ function graveRobber(car, grave) {
 function updateCounter() {
     switch (state) {
         case 0:
+            //Decrement timer
             if (time > 0)
                 time--;
+
+            //Time's up
             if (time == 0) {
                 state = 1;
                 time = 5;
+                //You survived a round
                 round++;
-            }
-            if (score == prevScore) {
-                //you lose
+                //Didn't get any kills
+                if (score == prevScore) {
+                    state = 2;
+                }
             }
             break;
-        default:
+        case 1:
+            //Decrement timer
             if (time > 0)
                 time--;
+
+            //Time's up
             if (time == 0) {
                 prevScore = score;
                 state = 0;
                 time = 10;
+                //Every six rounds add six guys
                 if (round % 6 == 0) {
                     for (var i = 0; i < 6; i++) {
                         var s = guys.create(game.world.randomX, game.world.randomY, 'guy', 5);
@@ -268,6 +293,9 @@ function updateCounter() {
                 }
 
             }
+            break;
+        default:
+            //End game
             break;
     }
 }
