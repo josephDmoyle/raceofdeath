@@ -28,6 +28,10 @@ var D;
 var Space;
 //Scream sound
 var s1;
+//Grave sound
+var crunch;
+//Metal song
+var metal;
 //Text object for display
 var scoreText;
 //Kill count
@@ -52,8 +56,10 @@ function preload() {
     game.load.image("guy1", "guy1.png");
     game.load.image("dead", "dead.png");
     game.load.image("map", "map.png");
-    game.load.spritesheet("guy", "guy.png", 32, 32, 2);
+    game.load.spritesheet("guy", "guy.png", 40, 40, 2);
     game.load.audio("s1", "s1.mp3");
+    game.load.audio("crunch", "crunch.mp3");
+    game.load.audio("metal", "metal.mp3");
 }
 
 //Initialize all the objects within the game
@@ -91,6 +97,14 @@ function create() {
 
     s1 = game.add.audio("s1");
     s1.allowMultiple = true;
+
+    crunch = game.add.audio("crunch");
+    crunch.allowMultiple = true;
+
+    metal = game.add.audio("metal");
+    metal.allowMultiple = false;
+    metal.play();
+
 
     for (var i = 0; i < 6; i++) {
         var s = guys.create(game.world.randomX, game.world.randomY, 'guy', 5);
@@ -217,7 +231,7 @@ function render() {
             timeText.text = "TIME: " + time;
             break;
         default:
-            var loseText = game.add.text(256, 256, "YOU LOSE");
+            var loseText = game.add.text(200, 256, "YOU LOSE");
             loseText.fill = "red";
             break;
     }
@@ -251,6 +265,7 @@ function vehicularManslaughter(car, guy) {
 
 function graveRobber(car, grave) {
     grave.kill();
+    crunch.play();
 }
 
 function updateCounter() {

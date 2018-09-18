@@ -20,9 +20,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="crunch.mp3" />
     <Content Include="dead.png" />
     <Content Include="index.html" />
     <Content Include="map.png" />
+    <Content Include="metal.mp3" />
     <Content Include="phaser.js" />
     <Content Include="phaser.min.js" />
     <Content Include="racer.png" />
