@@ -1,5 +1,5 @@
 /// <reference path="phaser.d.ts"/>
-var game = new Phaser.Game(512, 512, Phaser.CANVAS, 'content', {
+var game = new Phaser.Game(1024 * .9, 1024 * .9, Phaser.CANVAS, 'content', {
     create: create, preload: preload,
     update: update, render: render
 });
@@ -60,7 +60,7 @@ function preload() {
 //Initialize all the objects within the game
 function create() {
     var map = game.add.sprite(0, 0, "map");
-    map.scale.set(0.5);
+    map.scale.set(0.9);
     //Initiate the physics engine
     game.physics.startSystem(Phaser.Physics.ARCADE);
     scoreText = game.add.text(32, 32, "KILLS: ");
@@ -100,10 +100,10 @@ function create() {
     var carImage = game.cache.getImage("racer");
     //Create the car as a sprite with the loaded content
     car1 = game.add.sprite(game.world.randomX, game.world.randomY, "racer");
-    car1.scale.set(0.1, 0.1);
+    car1.scale.set(0.2, 0.2);
     //Create the car as a sprite with the loaded content
     car2 = game.add.sprite(game.world.randomX, game.world.randomY, "racer");
-    car2.scale.set(0.1, 0.1);
+    car2.scale.set(0.2, 0.2);
     //Set the pivot point to the center of the car
     car1.anchor.set(0.5);
     //Set the pivot point to the center of the car
@@ -149,9 +149,9 @@ function update() {
     switch (state) {
         case 0:
             //Process collisions with car to guys
-            game.physics.arcade.collide(car1, graves);
-            //Process collisions with car to guys
             game.physics.arcade.collide(car1, guys, vehicularManslaughter, null);
+            //Process collisions with car to guys
+            game.physics.arcade.collide(car1, graves);
             //Angular rotations given by A/l and D/r
             if (A.isDown)
                 car1.body.angularVelocity = -200;
@@ -166,6 +166,7 @@ function update() {
         case 1:
             //Process collisions with car to guys
             game.physics.arcade.collide(car2, graves, graveRobber, null);
+            game.physics.arcade.collide(car2, guys);
             //Angular rotations given by A/l and D/r
             if (A.isDown)
                 car2.body.angularVelocity = -200;
@@ -206,7 +207,7 @@ function vehicularManslaughter(car, guy) {
     score++;
     var grave = graves.create(guy.x, guy.y, 'dead', 5);
     grave.anchor.set(0.5);
-    grave.scale.set(0.08);
+    grave.scale.set(0.1);
     grave.body.immovable = true;
     guy.x = game.world.randomX;
     guy.y = game.world.randomY;
@@ -245,7 +246,7 @@ function updateCounter() {
                 state = 0;
                 time = 10;
                 //Every six rounds add six guys
-                if (round % 6 == 0) {
+                if (round % 3 == 0) {
                     for (var i = 0; i < 6; i++) {
                         var s = guys.create(game.world.randomX, game.world.randomY, 'guy', 5);
                         s.name = 'guy' + s;
