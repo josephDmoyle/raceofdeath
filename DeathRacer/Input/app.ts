@@ -107,14 +107,7 @@ function create() {
 
 
     for (var i = 0; i < 6; i++) {
-        var s = guys.create(game.world.randomX, game.world.randomY, 'guy', 5);
-        s.name = 'guy' + s;
-        s.body.collideWorldBounds = true;
-        s.body.bounce.setTo(0.8, 0.8);
-        s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
-        s.anchor.set(0.5);
-        var anim = s.animations.add("guy");
-        anim.play(10, true);
+        spawnGuys();
     }
 
     //Load in the image of the racer to get the proper dimensions
@@ -255,18 +248,28 @@ function render() {
 function vehicularManslaughter(car, guy) {
     score++;
     var grave = graves.create(guy.x, guy.y, 'dead', 5);
+    guy.kill();
     grave.anchor.set(0.5);
     grave.scale.set(0.1);
     grave.body.immovable = true;
-    guy.x = game.world.randomX;
-    guy.y = game.world.randomY;
-    guy.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+    spawnGuys();
     s1.play();
 }
 
 function graveRobber(car, grave) {
     grave.kill();
     crunch.play();
+}
+
+function spawnGuys() {
+    var s = guys.create(game.world.randomX, game.world.randomY, 'guy', 5);
+    s.name = 'guy' + s;
+    s.body.collideWorldBounds = true;
+    s.body.bounce.setTo(0.8, 0.8);
+    s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+    s.anchor.set(0.5);
+    var anim = s.animations.add("guy");
+    anim.play(10, true);
 }
 
 function updateCounter() {
@@ -299,16 +302,9 @@ function updateCounter() {
                 state = 0;
                 time = 10;
                 //Every six rounds add six guys
-                if (round % 3 == 0) {
+                if (round % 1 == 0) {
                     for (var i = 0; i < 6; i++) {
-                        var s = guys.create(game.world.randomX, game.world.randomY, 'guy', 5);
-                        s.name = 'guy' + s;
-                        s.body.collideWorldBounds = true;
-                        s.body.bounce.setTo(0.8, 0.8);
-                        s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
-                        s.anchor.set(0.5);
-                        var anim = s.animations.add("guy");
-                        anim.play(10, true);
+                        spawnGuys();
                     }
                 }
 
