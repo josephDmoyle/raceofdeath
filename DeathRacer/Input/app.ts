@@ -1,6 +1,6 @@
 ﻿/// <reference path="phaser.d.ts"/>
 
-var game = new Phaser.Game(640, 480, Phaser.CANVAS, 'content', {
+var game = new Phaser.Game(512, 512, Phaser.CANVAS, 'content', {
     create: create, preload: preload,
     update: update, render: render
 });
@@ -51,12 +51,16 @@ function preload() {
     game.load.image("guy0", "guy0.png");
     game.load.image("guy1", "guy1.png");
     game.load.image("dead", "dead.png");
+    game.load.image("map", "map.png");
     game.load.spritesheet("guy", "guy.png", 32, 32, 2);
     game.load.audio("s1", "s1.mp3");
 }
 
 //Initialize all the objects within the game
 function create() {
+    var map = game.add.sprite(0, 0, "map");
+    map.scale.set(0.5);
+
     //Initiate the physics engine
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -213,7 +217,7 @@ function render() {
             timeText.text = "TIME: " + time;
             break;
         default:
-            var loseText = game.add.text(320, 240, "YOU LOSE");
+            var loseText = game.add.text(256, 256, "YOU LOSE");
             loseText.fill = "red";
             break;
     }
@@ -237,7 +241,7 @@ function vehicularManslaughter(car, guy) {
     score++;
     var grave = graves.create(guy.x, guy.y, 'dead', 5);
     grave.anchor.set(0.5);
-    grave.scale.set(guy.scale.x, 1);
+    grave.scale.set(0.08);
     grave.body.immovable = true;
     guy.x = game.world.randomX;
     guy.y = game.world.randomY;

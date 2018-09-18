@@ -21,9 +21,8 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="dead.png" />
-    <Content Include="guy0.png" />
-    <Content Include="guy1.png" />
     <Content Include="index.html" />
+    <Content Include="map.png" />
     <Content Include="phaser.js" />
     <Content Include="phaser.min.js" />
     <Content Include="racer.png" />
