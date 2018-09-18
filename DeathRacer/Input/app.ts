@@ -104,9 +104,11 @@ function create() {
 
     //Create the car as a sprite with the loaded content
     car1 = game.add.sprite(game.world.randomX, game.world.randomY, "racer");
+    car1.scale.set(0.1, 0.1);
 
     //Create the car as a sprite with the loaded content
     car2 = game.add.sprite(game.world.randomX, game.world.randomY, "racer");
+    car2.scale.set(0.1, 0.1);
 
     //Set the pivot point to the center of the car
     car1.anchor.set(0.5);
@@ -151,6 +153,17 @@ function update() {
 
     game.physics.arcade.collide(guys, graves);
 
+    //Set cart velocities to zero so we can directly manipulate them each frame
+    car1.body.velocity.x = 0;
+    car1.body.velocity.y = 0;
+    car1.body.angularVelocity = 0;
+
+    car2.body.velocity.x = 0;
+    car2.body.velocity.y = 0;
+    car2.body.angularVelocity = 0;
+
+
+
     switch (state) {
         case 0:
             //Process collisions with car to guys
@@ -158,11 +171,6 @@ function update() {
 
             //Process collisions with car to guys
             game.physics.arcade.collide(car1, guys, vehicularManslaughter, null);
-
-            //Set velocities to zero so we can directly manipulate them each frame
-            car1.body.velocity.x = 0;
-            car1.body.velocity.y = 0;
-            car1.body.angularVelocity = 0;
 
             //Angular rotations given by A/l and D/r
             if (A.isDown)
@@ -178,11 +186,6 @@ function update() {
         default:
             //Process collisions with car to guys
             game.physics.arcade.collide(car2, graves, graveRobber, null);
-
-            //Set velocities to zero so we can directly manipulate them each frame
-            car2.body.velocity.x = 0;
-            car2.body.velocity.y = 0;
-            car2.body.angularVelocity = 0;
 
             //Angular rotations given by A/l and D/r
             if (A.isDown)
