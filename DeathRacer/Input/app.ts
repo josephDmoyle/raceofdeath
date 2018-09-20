@@ -33,6 +33,7 @@ var Space;
 var s1;
 //Grave sound
 var crunch;
+var whip;
 //Metal song
 var metal;
 //Text object for display
@@ -75,6 +76,7 @@ function preload() {
     game.load.spritesheet("guy", "guy.png", 40, 40, 2);
     game.load.audio("s1", "s1.mp3");
     game.load.audio("crunch", "crunch.mp3");
+    game.load.audio("whip", "lightning.mp3");
     game.load.audio("metal", "metal.mp3");
 }
 
@@ -147,6 +149,10 @@ function create() {
 
     crunch = game.add.audio("crunch");
     crunch.allowMultiple = true;
+
+    whip = game.add.audio("whip");
+    whip.allowMultiple = true;
+
 
     metal = game.add.audio("metal");
     metal.allowMultiple = false;
@@ -349,7 +355,7 @@ function updateCounter() {
             if (time == 0) {
                 state = 1;
                 time = 5;
-
+                whip.play();
                 cultist.visible = true;
                 cultist.position.x = game.width / 2;
                 cultist.position.y = 80;
@@ -371,6 +377,7 @@ function updateCounter() {
             //Time's up
             if (time == 0) {
                 prevScore = score;
+                whip.play();
                 state = 0;
                 time = 10;
                 cultist.visible = false;

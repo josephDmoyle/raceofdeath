@@ -25,6 +25,7 @@
     <Content Include="dead.png" />
     <Content Include="graveyard.png" />
     <Content Include="index.html" />
+    <Content Include="lightning.mp3" />
     <Content Include="lightning.png" />
     <Content Include="metal.mp3" />
     <Content Include="phaser.js" />
