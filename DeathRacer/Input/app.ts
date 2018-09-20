@@ -1,6 +1,6 @@
 ﻿/// <reference path="phaser.d.ts"/>
 
-var game = new Phaser.Game(1024*.9, 1024*.9, Phaser.CANVAS, 'content', {
+var game = new Phaser.Game(1600, 900, Phaser.CANVAS, 'content', {
     create: create, preload: preload,
     update: update, render: render
 });
@@ -12,6 +12,8 @@ var car1;
 var car2;
 //The guys to hit
 var guys;
+//The bounds to hit
+var walls;
 //The graves to hit
 var graves;
 //The four arrows
@@ -40,6 +42,8 @@ var score;
 var prevScore;
 //Text object for displaying the time
 var timeText;
+//Text object for displaying the time
+var waveText;
 //Timer object for displaying the time
 var timer;
 //Time Count
@@ -49,13 +53,20 @@ var state;
 //Global round
 var round;
 
+var lightning;
+
 //Load in all the graphical content
 function preload() {
     game.load.image("racer", "racer.png");
     game.load.image("guy0", "guy0.png");
     game.load.image("guy1", "guy1.png");
     game.load.image("dead", "dead.png");
-    game.load.image("map", "map.png");
+    game.load.image("wallU", "wallU.png");
+    game.load.image("wallD", "wallD.png");
+    game.load.image("wallL", "wallL.png");
+    game.load.image("wallR", "wallR.png");
+    game.load.image("graveyard", "graveyard.png");
+    game.load.image("lightning", "lightning.png");
     game.load.spritesheet("guy", "guy.png", 40, 40, 2);
     game.load.audio("s1", "s1.mp3");
     game.load.audio("crunch", "crunch.mp3");
@@ -64,13 +75,34 @@ function preload() {
 
 //Initialize all the objects within the game
 function create() {
-    var map = game.add.sprite(0, 0, "map");
-    map.scale.set(0.9);
+    var graveyard = game.add.sprite(403, 68, "graveyard");
+
+    walls = game.add.group();
+    walls.enableBody = true;
+    var wallU = walls.create(0, 0, 'wallU', 1);
+    wallU.body.immovable = true;
+    wallU.body.moves = false;
+    wallU.body.allowGravity = false;
+    var wallD = walls.create(0, 856, 'wallD', 1);
+    wallD.body.immovable = true;
+    wallD.body.moves = false;
+    wallD.body.allowGravity = false;
+    var wallL = walls.create(0, 0, 'wallL', 1);
+    wallL.body.immovable = true;
+    wallL.body.moves = false;
+    wallL.body.allowGravity = false;
+    var wallR = walls.create(1198, 0, 'wallR', 1);
+    wallR.body.immovable = true;
+    wallR.body.moves = false;
+    wallR.body.allowGravity = false;
+
+    lightning = game.add.sprite(0, 0, "lightning");
+    lightning.visible = false;
 
     //Initiate the physics engine
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    scoreText = game.add.text(32, 32, "KILLS: ");
+    scoreText = game.add.text(1348, 426, "0");
     scoreText.fill = "red";
 
     score = 0;
@@ -79,8 +111,11 @@ function create() {
     round = 0;
     state = 0;
 
-    timeText = game.add.text(32, 64, "TIME: ");
+    timeText = game.add.text(1348, 354, "0");
     timeText.fill = "red";
+
+    waveText = game.add.text(1348, 507, "0");
+    waveText.fill = "red";
 
     timer = game.time.create(false);
 
@@ -114,11 +149,11 @@ function create() {
     var carImage = game.cache.getImage("racer");
 
     //Create the car as a sprite with the loaded content
-    car1 = game.add.sprite(game.world.randomX, game.world.randomY, "racer");
+    car1 = game.add.sprite(410 + Math.random() * 790, 75 + Math.random() * 780, "racer");
     car1.scale.set(0.2, 0.2);
 
     //Create the car as a sprite with the loaded content
-    car2 = game.add.sprite(game.world.randomX, game.world.randomY, "racer");
+    car2 = game.add.sprite(410 + Math.random() * 790, 75 + Math.random() * 780, "racer");
     car2.scale.set(0.2, 0.2);
 
     //Set the pivot point to the center of the car
@@ -162,7 +197,11 @@ function update() {
     // Update input state
     game.input.update();
 
+    game.physics.arcade.collide(guys, walls);
+    game.physics.arcade.collide(car1, walls);
+    game.physics.arcade.collide(car2, walls);
     game.physics.arcade.collide(guys, graves);
+
 
     if (state < 2) {
         //Set cart velocity to zero so we can directly manipulate each frame
@@ -221,8 +260,9 @@ function render() {
     switch (state) {
         case 0:
         case 1:
-            scoreText.text = "KILLS: " + score;
-            timeText.text = "TIME: " + time;
+            scoreText.text = score;
+            timeText.text = time;
+            waveText.text = round;
             break;
         default:
             var loseText = game.add.text(200, 256, "YOU LOSE");
@@ -262,11 +302,17 @@ function graveRobber(car, grave) {
 }
 
 function spawnGuys() {
-    var s = guys.create(game.world.randomX, game.world.randomY, 'guy', 5);
+    var s = guys.create(410 + Math.random() * 790, 75 + Math.random() * 780, 'guy', 5);
     s.name = 'guy' + s;
     s.body.collideWorldBounds = true;
     s.body.bounce.setTo(0.8, 0.8);
-    s.body.velocity.setTo(10 + Math.random() * 40, 10 + Math.random() * 40);
+    var neggy = 1;
+    var negge = 1;
+    if (Math.random() < .5)
+        neggy = -1;
+    if (Math.random() < .5)
+        negge = -1;
+    s.body.velocity.setTo(neggy * Math.random() * 40, negge * Math.random() * 40);
     s.anchor.set(0.5);
     var anim = s.animations.add("guy");
     anim.play(10, true);
@@ -301,6 +347,8 @@ function updateCounter() {
                 prevScore = score;
                 state = 0;
                 time = 10;
+                lightning.visible = true;
+                setTimeout(lghtng, 200);
                 //Every six rounds add six guys
                 if (round % 1 == 0) {
                     for (var i = 0; i < 6; i++) {
@@ -314,6 +362,10 @@ function updateCounter() {
             //End game
             break;
     }
+}
+
+function lghtng() {
+    lightning.visible = false;
 }
 
 
