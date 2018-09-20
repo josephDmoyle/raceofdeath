@@ -7,9 +7,10 @@ var game = new Phaser.Game(1600, 900, Phaser.CANVAS, 'content', {
 
 
 //Car sprite
-var car1;
+var reaper;
 //Secret Second Player
-var car2;
+var cultist;
+var robGrave;
 //The guys to hit
 var guys;
 //The bounds to hit
@@ -44,6 +45,9 @@ var prevScore;
 var timeText;
 //Text object for displaying the time
 var waveText;
+//Text object for displaying the time
+var remainingText;
+var rem;
 //Timer object for displaying the time
 var timer;
 //Time Count
@@ -58,6 +62,7 @@ var lightning;
 //Load in all the graphical content
 function preload() {
     game.load.image("racer", "racer.png");
+    game.load.spritesheet("cultist", "cultist.png", 256, 256, 3);
     game.load.image("guy0", "guy0.png");
     game.load.image("guy1", "guy1.png");
     game.load.image("dead", "dead.png");
@@ -102,8 +107,8 @@ function create() {
     //Initiate the physics engine
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    scoreText = game.add.text(1348, 426, "0");
-    scoreText.fill = "red";
+    scoreText = game.add.text(1360, 394, "0");
+    scoreText.fill = '#660f0f';
 
     score = 0;
     prevScore = score;
@@ -111,11 +116,18 @@ function create() {
     round = 0;
     state = 0;
 
-    timeText = game.add.text(1348, 354, "0");
-    timeText.fill = "red";
+    timeText = game.add.text(1360, 330, "0");
+    timeText.fill = '#660f0f';
 
-    waveText = game.add.text(1348, 507, "0");
-    waveText.fill = "red";
+    waveText = game.add.text(1360, 460, "0");
+    waveText.fill = '#660f0f';
+
+    remainingText = game.add.text(1330, 600, "0");
+    remainingText.fill = '#660f0f';
+    remainingText.fontSize = 60;
+
+    rem = 3;
+    round = 1;
 
     timer = game.time.create(false);
 
@@ -149,38 +161,40 @@ function create() {
     var carImage = game.cache.getImage("racer");
 
     //Create the car as a sprite with the loaded content
-    car1 = game.add.sprite(410 + Math.random() * 790, 75 + Math.random() * 780, "racer");
-    car1.scale.set(0.2, 0.2);
+    reaper = game.add.sprite(game.width / 2, game.height / 2, "racer");
+    reaper.scale.set(0.2, 0.2);
 
     //Create the car as a sprite with the loaded content
-    car2 = game.add.sprite(410 + Math.random() * 790, 75 + Math.random() * 780, "racer");
-    car2.scale.set(0.2, 0.2);
+    cultist = game.add.sprite(game.width/2, 80, "cultist");
+    cultist.scale.set(0.3, 0.3);
+    robGrave = cultist.animations.add("cultist");
 
     //Set the pivot point to the center of the car
-    car1.anchor.set(0.5);
+    reaper.anchor.set(0.5);
 
     //Set the pivot point to the center of the car
-    car2.anchor.set(0.5);
+    cultist.anchor.set(0.5);
 
     //Enable the arcade physics interactions
-    game.physics.arcade.enable(car1);
+    game.physics.arcade.enable(reaper);
 
     //Enable the arcade physics interactions
-    game.physics.arcade.enable(car2);
+    game.physics.arcade.enable(cultist);
 
     //Set car to stay on screen
-    car1.body.collideWorldBounds = true;
+    reaper.body.collideWorldBounds = true;
     //Set the bounciness of the car
-    car1.body.bounce.set(0.8);
+    reaper.body.bounce.set(0.8);
     //Allow the car body to be rotated by us
-    car1.body.allowRotation = true;
+    reaper.body.allowRotation = true;
 
     //Set car to stay on screen
-    car2.body.collideWorldBounds = true;
+    cultist.body.collideWorldBounds = true;
     //Set the bounciness of the car
-    car2.body.bounce.set(0.8);
+    cultist.body.bounce.set(0.8);
     //Allow the car body to be rotated by us
-    car2.body.allowRotation = true;
+    cultist.body.allowRotation = true;
+    cultist.visible = false;
 
     // create the cursor key object
     cursors = game.input.keyboard.createCursorKeys();
@@ -198,58 +212,58 @@ function update() {
     game.input.update();
 
     game.physics.arcade.collide(guys, walls);
-    game.physics.arcade.collide(car1, walls);
-    game.physics.arcade.collide(car2, walls);
+    game.physics.arcade.collide(reaper, walls);
+    game.physics.arcade.collide(cultist, walls);
     game.physics.arcade.collide(guys, graves);
 
 
     if (state < 2) {
         //Set cart velocity to zero so we can directly manipulate each frame
-        car1.body.velocity.x = 0;
-        car1.body.velocity.y = 0;
-        car1.body.angularVelocity = 0;
+        reaper.body.velocity.x = 0;
+        reaper.body.velocity.y = 0;
+        reaper.body.angularVelocity = 0;
     }
 
-    car2.body.velocity.x = 0;
-    car2.body.velocity.y = 0;
-    car2.body.angularVelocity = 0;
+    cultist.body.velocity.x = 0;
+    cultist.body.velocity.y = 0;
+    cultist.body.angularVelocity = 0;
 
 
 
     switch (state) {
         case 0:
             //Process collisions with car to guys
-            game.physics.arcade.collide(car1, guys, vehicularManslaughter, null);
+            game.physics.arcade.collide(reaper, guys, vehicularManslaughter, null);
 
             //Process collisions with car to guys
-            game.physics.arcade.collide(car1, graves);
+            game.physics.arcade.collide(reaper, graves);
 
             //Angular rotations given by A/l and D/r
             if (A.isDown)
-                car1.body.angularVelocity = -200;
+                reaper.body.angularVelocity = -200;
             else if (D.isDown)
-                car1.body.angularVelocity = 200;
+                reaper.body.angularVelocity = 200;
             //Driving pedals given by W/u and S/d
             if (W.isDown)
-                car1.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(car1.angle, 300));
+                reaper.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(reaper.angle, 300));
             else if (S.isDown)
-                car1.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(car1.angle, -100));
+                reaper.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(reaper.angle, -100));
             break;
         case 1:
             //Process collisions with car to guys
-            game.physics.arcade.collide(car2, graves, graveRobber, null);
-            game.physics.arcade.collide(car2, guys);
+            game.physics.arcade.collide(cultist, graves, graveRobber, null);
+            game.physics.arcade.collide(cultist, guys);
 
             //Angular rotations given by A/l and D/r
             if (A.isDown)
-                car2.body.angularVelocity = -200;
+                cultist.body.angularVelocity = -200;
             else if (D.isDown)
-                car2.body.angularVelocity = 200;
+                cultist.body.angularVelocity = 200;
             //Driving pedals given by W/u and S/d
             if (W.isDown)
-                car2.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(car2.angle, 300));
+                cultist.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(cultist.angle, 300));
             else if (S.isDown)
-                car2.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(car2.angle, -100));
+                cultist.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(cultist.angle, -100));
             break;
         default:
             break;
@@ -263,10 +277,12 @@ function render() {
             scoreText.text = score;
             timeText.text = time;
             waveText.text = round;
+            remainingText.text = rem;
             break;
         default:
-            var loseText = game.add.text(200, 256, "YOU LOSE");
-            loseText.fill = "red";
+            var loseText = game.add.text(game.width / 2 - 200, game.height / 2, "YOU LOSE");
+            loseText.fontSize = 100;
+            loseText.fill = '#660f0f';
             break;
     }
 
@@ -287,6 +303,8 @@ function render() {
 
 function vehicularManslaughter(car, guy) {
     score++;
+    if (rem > 0)
+        rem--;
     var grave = graves.create(guy.x, guy.y, 'dead', 5);
     guy.kill();
     grave.anchor.set(0.5);
@@ -297,6 +315,8 @@ function vehicularManslaughter(car, guy) {
 }
 
 function graveRobber(car, grave) {
+
+    robGrave.play(12, false);
     grave.kill();
     crunch.play();
 }
@@ -329,10 +349,16 @@ function updateCounter() {
             if (time == 0) {
                 state = 1;
                 time = 5;
+
+                cultist.visible = true;
+                cultist.position.x = game.width / 2;
+                cultist.position.y = 80;
+                lightning.visible = true;
+                setTimeout(lghtng, 100);
                 //You survived a round
                 round++;
                 //Didn't get any kills
-                if (score == prevScore) {
+                if (rem > 0) {
                     state = 2;
                 }
             }
@@ -347,13 +373,13 @@ function updateCounter() {
                 prevScore = score;
                 state = 0;
                 time = 10;
+                cultist.visible = false;
                 lightning.visible = true;
-                setTimeout(lghtng, 200);
+                setTimeout(lghtng, 100);
+                rem = round * 3;
                 //Every six rounds add six guys
-                if (round % 1 == 0) {
-                    for (var i = 0; i < 6; i++) {
-                        spawnGuys();
-                    }
+                for (var i = 0; i < 6; i++) {
+                    spawnGuys();
                 }
 
             }

@@ -21,6 +21,7 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="crunch.mp3" />
+    <Content Include="cultist.png" />
     <Content Include="dead.png" />
     <Content Include="graveyard.png" />
     <Content Include="index.html" />
