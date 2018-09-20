@@ -10,6 +10,7 @@ var game = new Phaser.Game(1600, 900, Phaser.CANVAS, 'content', {
 var reaper;
 //Secret Second Player
 var cultist;
+//Cultist animation
 var robGrave;
 //The guys to hit
 var guys;
@@ -57,8 +58,11 @@ var time;
 var state;
 //Global round
 var round;
-
+//lightning sprite
 var lightning;
+//Maps
+var graveyard;
+var graveyard2;
 
 //Load in all the graphical content
 function preload() {
@@ -72,8 +76,9 @@ function preload() {
     game.load.image("wallL", "wallL.png");
     game.load.image("wallR", "wallR.png");
     game.load.image("graveyard", "graveyard.png");
+    game.load.image("graveyard2", "graveyard2.png");
     game.load.image("lightning", "lightning.png");
-    game.load.spritesheet("guy", "guy.png", 40, 40, 2);
+    game.load.spritesheet("guy", "guy.png", 22, 36, 2);
     game.load.audio("s1", "s1.mp3");
     game.load.audio("crunch", "crunch.mp3");
     game.load.audio("whip", "lightning.mp3");
@@ -82,8 +87,8 @@ function preload() {
 
 //Initialize all the objects within the game
 function create() {
-    var graveyard = game.add.sprite(403, 68, "graveyard");
 
+    //Add the four invisible walls
     walls = game.add.group();
     walls.enableBody = true;
     var wallU = walls.create(0, 0, 'wallU', 1);
@@ -103,41 +108,51 @@ function create() {
     wallR.body.moves = false;
     wallR.body.allowGravity = false;
 
+    //Overlay the cabinet art and such
+    graveyard = game.add.sprite(0, 0, "graveyard");
+    graveyard2 = game.add.sprite(0, 0, "graveyard2");
+    graveyard2.visible = false;
+
+    //Lightning effect
     lightning = game.add.sprite(0, 0, "lightning");
     lightning.visible = false;
 
     //Initiate the physics engine
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
+
+    //****TEXT INITIALIZATION***
+    score = 0;
+    prevScore = score;
+    state = 0;
+    rem = 3;
+    round = 1;
+
+    //****TEXT INITIALIZATION***
+    //Score text to display score
     scoreText = game.add.text(1360, 394, "0");
     scoreText.fill = '#660f0f';
 
-    score = 0;
-    prevScore = score;
-
-    round = 0;
-    state = 0;
-
+    //Create text for timekeeping
     timeText = game.add.text(1360, 330, "0");
     timeText.fill = '#660f0f';
 
+    //Display wave
     waveText = game.add.text(1360, 460, "0");
     waveText.fill = '#660f0f';
 
+    //Display required kills
     remainingText = game.add.text(1330, 600, "0");
     remainingText.fill = '#660f0f';
     remainingText.fontSize = 60;
 
-    rem = 3;
-    round = 1;
-
+    //Create round timer
     timer = game.time.create(false);
-
     timer.loop(1000, updateCounter, this);
-
     timer.start();
     time = 10;
 
+    //***Groups initialization***
     guys = game.add.group();
     guys.enableBody = true;
 
@@ -168,11 +183,11 @@ function create() {
 
     //Create the car as a sprite with the loaded content
     reaper = game.add.sprite(game.width / 2, game.height / 2, "racer");
-    reaper.scale.set(0.2, 0.2);
+    reaper.scale.set(0.3, 0.3);
 
     //Create the car as a sprite with the loaded content
     cultist = game.add.sprite(game.width/2, 80, "cultist");
-    cultist.scale.set(0.3, 0.3);
+    cultist.scale.set(0.4, 0.4);
     robGrave = cultist.animations.add("cultist");
 
     //Set the pivot point to the center of the car
@@ -234,8 +249,6 @@ function update() {
     cultist.body.velocity.y = 0;
     cultist.body.angularVelocity = 0;
 
-
-
     switch (state) {
         case 0:
             //Process collisions with car to guys
@@ -245,14 +258,14 @@ function update() {
             game.physics.arcade.collide(reaper, graves);
 
             //Angular rotations given by A/l and D/r
-            if (A.isDown)
+            if (A.isDown || cursors.left.isDown)
                 reaper.body.angularVelocity = -200;
-            else if (D.isDown)
+            else if (D.isDown || cursors.right.isDown)
                 reaper.body.angularVelocity = 200;
             //Driving pedals given by W/u and S/d
-            if (W.isDown)
+            if (W.isDown || cursors.up.isDown)
                 reaper.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(reaper.angle, 300));
-            else if (S.isDown)
+            else if (S.isDown || cursors.down.isDown)
                 reaper.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(reaper.angle, -100));
             break;
         case 1:
@@ -261,14 +274,14 @@ function update() {
             game.physics.arcade.collide(cultist, guys);
 
             //Angular rotations given by A/l and D/r
-            if (A.isDown)
+            if (A.isDown || cursors.left.isDown)
                 cultist.body.angularVelocity = -200;
-            else if (D.isDown)
+            else if (D.isDown || cursors.right.isDown)
                 cultist.body.angularVelocity = 200;
             //Driving pedals given by W/u and S/d
-            if (W.isDown)
+            if (W.isDown || cursors.up.isDown)
                 cultist.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(cultist.angle, 300));
-            else if (S.isDown)
+            else if (S.isDown || cursors.down.isDown)
                 cultist.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(cultist.angle, -100));
             break;
         default:
@@ -286,9 +299,6 @@ function render() {
             remainingText.text = rem;
             break;
         default:
-            var loseText = game.add.text(game.width / 2 - 200, game.height / 2, "YOU LOSE");
-            loseText.fontSize = 100;
-            loseText.fill = '#660f0f';
             break;
     }
 
@@ -353,20 +363,25 @@ function updateCounter() {
 
             //Time's up
             if (time == 0) {
-                state = 1;
-                time = 5;
-                whip.play();
-                cultist.visible = true;
-                cultist.position.x = game.width / 2;
-                cultist.position.y = 80;
-                lightning.visible = true;
-                setTimeout(lghtng, 100);
-                //You survived a round
-                round++;
-                //Didn't get any kills
                 if (rem > 0) {
+                    var loseText = game.add.text(game.width / 2 - 200, game.height / 2, "YOU LOSE");
+                    loseText.fontSize = 100;
+                    loseText.fill = '#660f0f';
                     state = 2;
                 }
+                else {
+                    round++;
+                    state = 1;
+                    time = 5;
+                    cultist.rotation = 0;
+                    cultist.visible = true;
+                    cultist.position.x = game.width / 2;
+                    cultist.position.y = 80;
+                    graveyard2.visible = true;
+                }
+                whip.play();
+                lightning.visible = true;
+                setTimeout(lghtng, 100);
             }
             break;
         case 1:
@@ -381,6 +396,7 @@ function updateCounter() {
                 state = 0;
                 time = 10;
                 cultist.visible = false;
+                graveyard2.visible = false;
                 lightning.visible = true;
                 setTimeout(lghtng, 100);
                 rem = round * 3;

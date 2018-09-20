@@ -24,6 +24,7 @@
     <Content Include="cultist.png" />
     <Content Include="dead.png" />
     <Content Include="graveyard.png" />
+    <Content Include="graveyard2.png" />
     <Content Include="index.html" />
     <Content Include="lightning.mp3" />
     <Content Include="lightning.png" />
